@@ -15,11 +15,23 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>11</java.version>
+        <commons-lang3.verison>3.12.0</commons-lang3.verison>
+        <commons-io.version>2.11.0</commons-io.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,9 +69,9 @@
                             <excludeDefaultDirectories>true</excludeDefaultDirectories>
                             <filesets>
                                 <fileset>
-                                    <directory>.tmp/cucumber-spring-demo</directory>
+                                    <directory>.tmp/cucumber-spring-demo/</directory>
                                     <includes>
-                                        <include>/**</include>
+                                        <include>**</include>
                                     </includes>
                                 </fileset>
                             </filesets>

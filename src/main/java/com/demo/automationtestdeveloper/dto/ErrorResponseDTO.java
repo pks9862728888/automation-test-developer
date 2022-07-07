@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Builder
 public class ErrorResponseDTO implements Serializable {
 
-    public int statusCode;
-    public String message;
+    private int statusCode;
+    private String message;
 
 }
