@@ -1,4 +1,9 @@
 # Getting Started
+Demo project to add test cases automatically
+
+# API Documentation
+- Delete existing repo and re-clone it: `app/v1/repo/reload-main-repo`
+
 
 ### Reference Documentation
 For further reference, please consider the following sections:
