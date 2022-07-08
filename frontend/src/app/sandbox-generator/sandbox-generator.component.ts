@@ -10,6 +10,7 @@ export class SandboxGeneratorComponent implements OnInit {
 
   branchForm!: FormGroup;
   generatingSandbox: boolean = false;
+  errorMessage!: string;
 
   constructor(private fb: FormBuilder) {
   }
