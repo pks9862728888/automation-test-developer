@@ -1,0 +1,6 @@
+<div class="wrapper" [ngClass]="spinnerText? 'decorate-spinner-wrapper' : ''">
+    <div [ngClass]="spinnerText? 'spinner' : ''">
+        <mat-spinner [diameter]="diameter" color="accent"></mat-spinner>
+    </div>
+    <span *ngIf="spinnerText">{{ spinnerText }}</span>
+</div>

@@ -1,0 +1,14 @@
+.wrapper {
+    display: flex;
+    align-items: center;
+    padding: 0.3rem;
+}
+
+.decorate-spinner-wrapper {
+    background-color: rgba(0, 255, 255, 0.2);
+    padding: 1rem;
+}
+
+.spinner {
+    margin-right: 0.5rem;
+}
