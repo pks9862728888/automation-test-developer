@@ -1,0 +1,9 @@
+.navbar {
+    background-color: #63B175;
+    color: #fff;
+}
+
+.navbar-brand {
+    color: #fff;
+    cursor: pointer;
+}
