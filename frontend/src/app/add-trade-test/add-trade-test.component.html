@@ -15,15 +15,40 @@
       </div>
 
       <!-- Steps -->
-      <div class="p-t-1rem">
+      <div class="p-t-1rem" >
         <mat-card>
             <mat-card-title>Steps:</mat-card-title>
             <mat-divider></mat-divider>
             <div>
                 <mat-list role="list">
+                    <mat-list-item><span *ngFor="let tag of tagsList">{{ tag + "&nbsp;" }}</span></mat-list-item>
                     <mat-list-item role="listitem" *ngFor="let step of steps">{{step}}</mat-list-item>
                 </mat-list>
             </div>
+        </mat-card>
+      </div>
+
+      <!-- Event, Test Name, and Tags -->
+      <div class="p-t-1rem">
+        <mat-card>
+            <form [formGroup]="featureForm">
+                <div class="mb-3">
+                    <label for="event">Select Event:</label>
+                    <select formControlName="event" class="form-select form-select-sm mb-3" aria-label="event" id="event">
+                        <option value="NEW_TRADE">NEW_TRADE</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="testName">Test Name:</label>
+                    <input formControlName="testName" type="text" id="testName" class="form-control" placeholder="Enter Test Name" aria-label="TestName">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="tags">Enter Tags (separated by comma):</label>
+                    <input formControlName="tags" type="text" id="tags" class="form-control" placeholder="Enter tags separated by comma" aria-label="Tags">
+                </div>
+            </form>
         </mat-card>
       </div>
     </mat-card-content>
