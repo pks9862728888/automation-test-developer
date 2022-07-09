@@ -1,0 +1,16 @@
+.card {
+    margin: 1rem;
+    background-color: #424242;
+}
+
+.title {
+    color: rgb(47, 197, 1);
+    background-color: #353535;
+    border-radius: 5px;
+    z-index: 2;
+    box-shadow: 1px 1px 3px #1b1b1b;
+}
+
+.p-t-1rem {
+    padding-top: 1rem;
+}

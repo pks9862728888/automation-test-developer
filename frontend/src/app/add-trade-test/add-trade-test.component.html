@@ -1,0 +1,30 @@
+<mat-card class="card">
+    <mat-toolbar class="title">
+        <span>Add Test Trade</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <div class="p-t-1rem">
+        <mat-card>
+        <mat-chip-list aria-label="Test categories">
+            <mat-chip>{{ jurisdiction }}</mat-chip>
+            <mat-chip>{{ sourceSystem }}</mat-chip>
+            <mat-chip>{{ assetClass }}</mat-chip>
+            <mat-chip>{{ upi }}</mat-chip>
+          </mat-chip-list>
+        </mat-card>
+      </div>
+
+      <!-- Steps -->
+      <div class="p-t-1rem">
+        <mat-card>
+            <mat-card-title>Steps:</mat-card-title>
+            <mat-divider></mat-divider>
+            <div>
+                <mat-list role="list">
+                    <mat-list-item role="listitem" *ngFor="let step of steps">{{step}}</mat-list-item>
+                </mat-list>
+            </div>
+        </mat-card>
+      </div>
+    </mat-card-content>
+</mat-card>

@@ -9,14 +9,19 @@ import { SandboxGeneratorComponent } from './sandbox-generator/sandbox-generator
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from './shared/shared.module';
+import { AddTradeTestComponent } from './add-trade-test/add-trade-test.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
-    SandboxGeneratorComponent
+    SandboxGeneratorComponent,
+    AddTradeTestComponent
   ],
   imports: [
     BrowserModule,
@@ -26,6 +31,9 @@ import { SharedModule } from './shared/shared.module';
     MatToolbarModule,
     MatCardModule,
     MatButtonModule,
+    MatChipsModule,
+    MatDividerModule,
+    MatListModule,
     SharedModule
   ],
   providers: [],

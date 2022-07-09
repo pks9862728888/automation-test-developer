@@ -1,9 +1,10 @@
-.navbar {
-    background-color: #63B175;
-    color: #fff;
+.mat-toolbar {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 1000;
 }
 
-.navbar-brand {
-    color: #fff;
-    cursor: pointer;
+.menu-bar {
+    margin-bottom: calc(64px + 1rem);
 }
