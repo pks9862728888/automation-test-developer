@@ -1,0 +1,24 @@
+<div class="wrapper">
+    <mat-card class="card">
+        <form class="d-flex" [formGroup]="branchForm">
+            <input type="text"
+                   class="input"
+                   placeholder="Enter Branch Name"
+                   formControlName="branch_name"
+                   (keyup)="refactorBranchName()"/>
+            <button mat-raised-button color="primary"
+                    (click)="generateSandbox()"
+                    [disabled]="!branchForm.valid">Generate Sandbox</button>
+        </form>
+        <p *ngIf="(branchForm.touched || branchForm.dirty) && branchForm.get('branch_name')?.errors?.['required']" class="span">
+            Branch-name is required for generating sandbox of github repo.
+        </p>
+        <p class="m-t-1rem" *ngIf="generatingSandbox">
+            <app-progress-spinner [spinnerText]="'Generating sandbox. This might take a few minutes. Please wait...'"
+                                  [diameter]="30"></app-progress-spinner>
+        </p>
+        <p class="m-t-1rem" *ngIf="errorMessage">
+            <app-show-error [errorMessage]="errorMessage"></app-show-error>
+        </p>
+    </mat-card>
+</div>

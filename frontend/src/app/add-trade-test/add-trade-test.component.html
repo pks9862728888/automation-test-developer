@@ -1,0 +1,114 @@
+<mat-card class="card">
+    <mat-toolbar class="title">
+        <span>Add Test Trade</span>
+    </mat-toolbar>
+    <mat-card-content>
+      <div class="p-t-1rem">
+        <mat-card>
+        <mat-chip-list aria-label="Test categories">
+            <mat-chip>{{ jurisdiction }}</mat-chip>
+            <mat-chip>{{ sourceSystem }}</mat-chip>
+            <mat-chip>{{ assetClass }}</mat-chip>
+            <mat-chip>{{ upi }}</mat-chip>
+          </mat-chip-list>
+        </mat-card>
+      </div>
+
+      <!-- Steps -->
+      <div class="p-t-1rem" [hidden]="true">
+        <mat-card>
+            <mat-card-title>Steps:</mat-card-title>
+            <mat-divider></mat-divider>
+            <div>
+                <mat-list role="list">
+                    <mat-list-item><span *ngFor="let tag of tagsList">{{ tag + "&nbsp;" }}</span></mat-list-item>
+                    <mat-list-item role="listitem" *ngFor="let step of steps">{{step}}</mat-list-item>
+                </mat-list>
+            </div>
+        </mat-card>
+      </div>
+
+      <!-- Event, Test Name, and Tags -->
+      <div class="p-t-1rem">
+        <mat-card>
+            <form [formGroup]="featureForm">
+                <div class="mb-3">
+                    <label for="event">Select Event:</label>
+                    <select formControlName="event" class="form-select form-select-sm mb-3" aria-label="event" id="event">
+                        <option value="NEW_TRADE">NEW_TRADE</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="testName">Test Name:</label>
+                    <input formControlName="testName" type="text" id="testName" class="form-control" placeholder="Enter Test Name" aria-label="TestName">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="tags">Enter Tags (separated by comma):</label>
+                    <input formControlName="tags" type="text" id="tags" class="form-control" placeholder="Enter tags separated by comma" aria-label="Tags">
+                </div>
+            </form>
+        </mat-card>
+      </div>
+
+      <!-- Test Meta-data -->
+      <div class="p-t-1rem">
+        <mat-card>
+            <div class="row">
+                <div class="col first-col">
+                    <h3>Input Nodes:</h3>
+                    <form [formGroup]="metaDataForm">
+                        <div class="meta-group" formArrayName="input" *ngFor="let node of input.controls; let i=index">
+                            <div [formGroupName]="i">
+                                <div class="node-header d-flex">
+                                    <div class="node-title">
+                                        <h3 class="m-b-0">Node: {{ i }}</h3>
+                                    </div>
+                                    <span class="spacer"></span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="delete-icon" (click)="deleteInputNode(node, i)" viewBox="0 0 16 16">
+                                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+                                    </svg>
+                                    <!-- <button mat-raised-button color="warn" (click)="deleteInputNode(node, i)">Delete Node {{ i }}</button> -->
+                                </div>
+                                <div class="mb-3" *ngFor="let key of getFormControlKeys(node)">
+                                    <div [hidden]="key === 'isXmlDataMasked'">
+                                        <label attr.for="{{ key + i }}">{{ key }}:</label>
+                                        <input *ngIf="key !== 'xmlData'" formControlName="{{ key }}" type="text" id="{{ key + i }}" class="form-control" placeholder="Enter {{ key }}">
+                                        <div *ngIf="key === 'xmlData'">
+                                            <textarea formControlName="{{ key }}" type="text" id="{{ key + i }}" (change)="trimXmlData(node.get(key))" class="form-control" placeholder="Enter {{ key }}" rows="2"></textarea>
+                                            <button mat-raised-button *ngIf="node.get(key)?.valid" color="accent" class="m-t-1rem">Mask Xml Data</button>
+                                        </div>
+
+                                        <!-- Input Validation errors -->
+                                        <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['required']" class="field-validation-error">
+                                            This field is required.
+                                        </p>
+                                        <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['min']" class="field-validation-error">
+                                            <span *ngIf="key === 'leadTimeDelay'">Delay should be >= 0 (unit is in ms).</span>
+                                            <span *ngIf="key !== 'leadTimeDelay'">Value should be >= 0</span>
+                                        </p>
+                                        <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['number']" class="field-validation-error">
+                                            Value should be a number.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add / Delete node -->
+                        <div>
+                            <button mat-raised-button color="accent" (click)="addInputNode()">Add Node</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col">
+                    <h3>Verification Nodes:</h3>
+                    <div class="meta-group">
+                        sdf
+                    </div>
+                </div>
+            </div>
+        </mat-card>
+      </div>
+    </mat-card-content>
+</mat-card>

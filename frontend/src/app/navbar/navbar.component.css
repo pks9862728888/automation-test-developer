@@ -1,0 +1,10 @@
+.mat-toolbar {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 1000;
+}
+
+.menu-bar {
+    margin-bottom: calc(64px + 1rem);
+}

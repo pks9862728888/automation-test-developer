@@ -1,0 +1,14 @@
+env: local
+
+main-repo:
+  name: cucumber-spring-demo
+  url: git@github.com:pks9862728888/${main-repo.name}.git
+  clone-branch: master
+  clone-dir: .tmp/${main-repo.name}
+
+command:
+  mvn: mvn.cmd
+
+logging:
+  level:
+    com.demo.automationtestdeveloper: DEBUG
