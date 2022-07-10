@@ -14,7 +14,8 @@
             Branch-name is required for generating sandbox of github repo.
         </p>
         <p class="m-t-1rem" *ngIf="generatingSandbox">
-            <app-progress-spinner [spinnerText]="'Generating sandbox. This might take a few minutes. Please wait...'"></app-progress-spinner>
+            <app-progress-spinner [spinnerText]="'Generating sandbox. This might take a few minutes. Please wait...'"
+                                  [diameter]="30"></app-progress-spinner>
         </p>
         <p class="m-t-1rem" *ngIf="errorMessage">
             <app-show-error [errorMessage]="errorMessage"></app-show-error>

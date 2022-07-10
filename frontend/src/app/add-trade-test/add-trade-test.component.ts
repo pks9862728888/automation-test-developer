@@ -1,8 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { debounceTime } from 'rxjs';
 import { NumberValidators } from '../shared/custom-validators/number.validator';
+import { ConfirmDialog } from '../shared/dialogs/confirmation-dialog/confirm.dialog';
+import { SnackBarUtils } from '../shared/utils/snackbar.util';
 
 @Component({
   selector: 'app-add-trade-test',
@@ -28,7 +32,9 @@ export class AddTradeTestComponent implements OnInit {
   metaDataForm!: FormGroup;
 
   constructor(private activatedRoute: ActivatedRoute,
-              private fb: FormBuilder) { }
+              private fb: FormBuilder,
+              private dialog: MatDialog,
+              private snackbar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.jurisdiction = this.activatedRoute.snapshot.paramMap.get("jurisdiction") || "";
@@ -125,7 +131,23 @@ export class AddTradeTestComponent implements OnInit {
     return keys;
   }
 
-  updateTagsList() {
+  deleteInputNode(node: AbstractControl<any, any> | null, id: number): void {
+    this.dialog.open(ConfirmDialog, {
+      data: {
+        title: `Delete input node: ${id}?`,
+        description: `Please confirm`,
+        yesButtonName: `Delete`,
+        noButtonName: `Cancel`
+      },
+    }).afterClosed().subscribe(data => {
+      if (data) {
+        this.input.removeAt(id);
+        SnackBarUtils.openSnackBar(`Input node: ${id} deleted!`, 2000, this.snackbar);
+      }
+    });
+  }
+
+  updateTagsList() : void {
     let tags: Array<string> = [];
     this.featureForm.get('tags')?.value.split(",").forEach((tag: string) => tags.push(`@${tag.trim()}`));
     this.tagsList = tags;
