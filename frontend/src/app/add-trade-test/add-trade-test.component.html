@@ -85,19 +85,19 @@
                                             This field is required.
                                         </p>
                                         <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['min']" class="field-validation-error">
-                                            Delay should be >= 0 (unit is in ms).
+                                            <span *ngIf="key === 'leadTimeDelay'">Delay should be >= 0 (unit is in ms).</span>
+                                            <span *ngIf="key !== 'leadTimeDelay'">Value should be >= 0</span>
                                         </p>
                                         <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['number']" class="field-validation-error">
                                             Value should be a number.
                                         </p>
                                     </div>
                                 </div>
-
-                                <!-- Add / Delete node -->
-                                <div class="m-t-1rem">
-                                    <button mat-raised-button color="accent" class="">Add Node</button>
-                                </div>
                             </div>
+                        </div>
+                        <!-- Add / Delete node -->
+                        <div>
+                            <button mat-raised-button color="accent" (click)="addInputNode()">Add Node</button>
                         </div>
                     </form>
                 </div>

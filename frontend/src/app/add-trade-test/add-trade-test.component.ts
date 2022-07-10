@@ -89,8 +89,8 @@ export class AddTradeTestComponent implements OnInit {
 
     // ----------------------------- META-DATA FORM -------------------------------
     this.metaDataForm = this.fb.group({
-      input: this.fb.array([this.getInputNode()]),
-      verification: this.fb.array([this.getVerificationNode()])
+      input: this.fb.array([this.createNewInputNode()]),
+      verification: this.fb.array([this.createNewVerificationNode()])
     });
   }
 
@@ -98,10 +98,10 @@ export class AddTradeTestComponent implements OnInit {
     return <FormArray> this.metaDataForm.get('input');
   }
 
-  getInputNode(): FormGroup {
+  createNewInputNode(): FormGroup {
     let obj = this.fb.group({
       type: [{value: 'KAFKA_TRADE_MESSAGE', disabled: true}, [Validators.required]],
-      identifier: [{value: `${this.inputIdentifierIdx}`, disabled: true }, [Validators.required]],
+      identifier: [`${this.inputIdentifierIdx}`, [Validators.required, Validators.min(0), NumberValidators.number]],
       identifierToReuseIdFrom: [`${this.inputIdentifierIdx > 1 ? this.inputIdentifierIdx - 1 : ''}`],
       tradeId: ['', Validators.required],
       sourceSystem: [{value: `${this.sourceSystem}`, disabled: true}, Validators.required],
@@ -115,7 +115,7 @@ export class AddTradeTestComponent implements OnInit {
     return obj;
   }
 
-  getVerificationNode(): FormGroup {
+  createNewVerificationNode(): FormGroup {
     return this.fb.group({});
   }
 
@@ -134,7 +134,7 @@ export class AddTradeTestComponent implements OnInit {
   deleteInputNode(node: AbstractControl<any, any> | null, id: number): void {
     this.dialog.open(ConfirmDialog, {
       data: {
-        title: `Delete input node: ${id}?`,
+        title: `Delete input node: ${id} having identifier: ${node?.get('identifier')?.value}?`,
         description: `Please confirm`,
         yesButtonName: `Delete`,
         noButtonName: `Cancel`
@@ -142,9 +142,13 @@ export class AddTradeTestComponent implements OnInit {
     }).afterClosed().subscribe(data => {
       if (data) {
         this.input.removeAt(id);
-        SnackBarUtils.openSnackBar(`Input node: ${id} deleted!`, 2000, this.snackbar);
+        SnackBarUtils.openSnackBar(`Deleted Input node: ${id} having identifier: ${node?.get('identifier')?.value}!`, 2000, this.snackbar);
       }
     });
+  }
+
+  addInputNode() {
+    this.input.push(this.createNewInputNode());
   }
 
   updateTagsList() : void {
