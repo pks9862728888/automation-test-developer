@@ -10,7 +10,7 @@
                     (click)="generateSandbox()"
                     [disabled]="!branchForm.valid">Generate Sandbox</button>
         </form>
-        <p *ngIf="branchForm.dirty && branchForm.get('branch_name')?.errors?.['required']" class="span">
+        <p *ngIf="(branchForm.touched || branchForm.dirty) && branchForm.get('branch_name')?.errors?.['required']" class="span">
             Branch-name is required for generating sandbox of github repo.
         </p>
         <p class="m-t-1rem" *ngIf="generatingSandbox">

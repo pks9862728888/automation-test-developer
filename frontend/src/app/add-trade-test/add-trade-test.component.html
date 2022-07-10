@@ -15,7 +15,7 @@
       </div>
 
       <!-- Steps -->
-      <div class="p-t-1rem" >
+      <div class="p-t-1rem" [hidden]="true">
         <mat-card>
             <mat-card-title>Steps:</mat-card-title>
             <mat-divider></mat-divider>
@@ -49,6 +49,50 @@
                     <input formControlName="tags" type="text" id="tags" class="form-control" placeholder="Enter tags separated by comma" aria-label="Tags">
                 </div>
             </form>
+        </mat-card>
+      </div>
+
+      <!-- Test Meta-data -->
+      <div class="p-t-1rem">
+        <mat-card>
+            <div class="row">
+                <div class="col first-col">
+                    <h3>Input Nodes:</h3>
+                    <form [formGroup]="metaDataForm">
+                        <div class="meta-group" formArrayName="input" *ngFor="let node of input.controls; let i=index">
+                            <div [formGroupName]="i">
+                                <div class="mb-3" *ngFor="let key of getFormControlKeys(node)">
+                                    <div [hidden]="key === 'isXmlDataMasked'">
+                                        <label attr.for="{{ key + i }}">{{ key }}:</label>
+                                        <input *ngIf="key !== 'xmlData'" formControlName="{{ key }}" type="text" id="{{ key + i }}" class="form-control" placeholder="Enter {{ key }}">
+                                        <div *ngIf="key === 'xmlData'">
+                                            <textarea formControlName="{{ key }}" type="text" id="{{ key + i }}" (change)="trimXmlData(node.get(key))" class="form-control" placeholder="Enter {{ key }}" rows="2"></textarea>
+                                            <button mat-raised-button *ngIf="node.get(key)?.valid" color="accent" class="btn-mask-data">Mask Xml Data</button>
+                                        </div>
+
+                                        <!-- Input Validation errors -->
+                                        <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['required']" class="field-validation-error">
+                                            This field is required.
+                                        </p>
+                                        <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['min']" class="field-validation-error">
+                                            Delay should be >= 0 (unit is in ms).
+                                        </p>
+                                        <p *ngIf="(node.get(key)?.dirty || node.get(key)?.touched) && node.get(key)?.errors?.['number']" class="field-validation-error">
+                                            Value should be a number.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col">
+                    <h3>Verification Nodes:</h3>
+                    <div class="meta-group">
+                        sdf
+                    </div>
+                </div>
+            </div>
         </mat-card>
       </div>
     </mat-card-content>

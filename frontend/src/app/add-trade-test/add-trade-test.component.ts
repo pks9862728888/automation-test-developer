@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { debounceTime } from 'rxjs';
+import { NumberValidators } from '../shared/custom-validators/number.validator';
 
 @Component({
   selector: 'app-add-trade-test',
@@ -20,9 +21,11 @@ export class AddTradeTestComponent implements OnInit {
   tagsList: Array<string> = [];
   steps: Array<string> = [];
   testName!: string;
+  inputIdentifierIdx = 1;
 
   // Forms
   featureForm!: FormGroup;
+  metaDataForm!: FormGroup;
 
   constructor(private activatedRoute: ActivatedRoute,
               private fb: FormBuilder) { }
@@ -48,7 +51,7 @@ export class AddTradeTestComponent implements OnInit {
     this.steps.push(`| Test Name |`);
     this.steps.push(`${this.addTestName(this.testName)}`);
 
-    // Feature form
+    // ----------------------------- FEATURE FORM -------------------------------
     this.featureForm = this.fb.group({
         event: ['', Validators.required],
         testName: [this.testName, Validators.required],
@@ -77,12 +80,61 @@ export class AddTradeTestComponent implements OnInit {
 
     // Tags
     this.updateTagsList();
+
+    // ----------------------------- META-DATA FORM -------------------------------
+    this.metaDataForm = this.fb.group({
+      input: this.fb.array([this.getInputNode()]),
+      verification: this.fb.array([this.getVerificationNode()])
+    });
+  }
+
+  get input(): FormArray {
+    return <FormArray> this.metaDataForm.get('input');
+  }
+
+  getInputNode(): FormGroup {
+    let obj = this.fb.group({
+      type: [{value: 'KAFKA_TRADE_MESSAGE', disabled: true}, [Validators.required]],
+      identifier: [{value: `${this.inputIdentifierIdx}`, disabled: true }, [Validators.required]],
+      identifierToReuseIdFrom: [`${this.inputIdentifierIdx > 1 ? this.inputIdentifierIdx - 1 : ''}`],
+      tradeId: ['', Validators.required],
+      sourceSystem: [{value: `${this.sourceSystem}`, disabled: true}, Validators.required],
+      channel: [{value: 'MANUAL', disabled: true}, Validators.required],
+      event: ['NEW_TRADE', Validators.required],
+      leadTimeDelay: [0, [Validators.required, NumberValidators.number, Validators.min(0)]],
+      xmlData: ['', [Validators.required]],
+      isXmlDataMasked: [false, [Validators.requiredTrue]]
+    });
+    this.inputIdentifierIdx += 1;
+    return obj;
+  }
+
+  getVerificationNode(): FormGroup {
+    return this.fb.group({});
+  }
+
+  getFormControlKeys(node: any): Array<string> {
+    let keys: Array<string> = [];
+
+    Object.keys(node.controls).forEach((key: string) => {
+      if (isNaN(Number(key))) {
+        keys.push(key);
+      }
+    });
+
+    return keys;
   }
 
   updateTagsList() {
     let tags: Array<string> = [];
     this.featureForm.get('tags')?.value.split(",").forEach((tag: string) => tags.push(`@${tag.trim()}`));
     this.tagsList = tags;
+  }
+
+  trimXmlData(control: AbstractControl<any, any> | null) : void {
+    if (control) {
+      control.patchValue(control.value ? control.value.trim() : "");
+    }
   }
 
   getDefaultTags(): string {
