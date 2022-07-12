@@ -1,4 +1,4 @@
-package com.demo.automationtestdeveloper.dto;
+package com.demo.automationtestdeveloper.models.dto;
 
 import lombok.Data;
 

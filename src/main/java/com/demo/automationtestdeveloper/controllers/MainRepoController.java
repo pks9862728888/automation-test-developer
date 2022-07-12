@@ -1,6 +1,6 @@
 package com.demo.automationtestdeveloper.controllers;
 
-import com.demo.automationtestdeveloper.dto.CreateBranchDTO;
+import com.demo.automationtestdeveloper.models.dto.CreateBranchDTO;
 import com.demo.automationtestdeveloper.exceptions.CommandRunnerException;
 import com.demo.automationtestdeveloper.services.GithubService;
 import com.demo.automationtestdeveloper.utils.DateTimeUtils;

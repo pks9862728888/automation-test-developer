@@ -1,4 +1,4 @@
-package com.demo.automationtestdeveloper.dto;
+package com.demo.automationtestdeveloper.models.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -11,5 +11,6 @@ public class ErrorResponseDTO implements Serializable {
 
     private int statusCode;
     private String message;
+    private String exceptionType;
 
 }

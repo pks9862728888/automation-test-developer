@@ -1,14 +1,42 @@
 env: local
 
+server:
+  port: 8086
+
 main-repo:
-  name: cucumber-spring-demo
+  name: automation-test-developer-target-repo
   url: git@github.com:pks9862728888/${main-repo.name}.git
   clone-branch: master
   clone-dir: .tmp/${main-repo.name}
+  api:
+    base-url: http://localhost
+    port: 9000
+    get-enum-values: ${main-repo.api.base-url}:${main-repo.api.port}/api/v1/main/getEnumValues
+    get-trade-events: ${main-repo.api.base-url}:${main-repo.api.port}/api/v1/main/getTradeEvents
 
 command:
   mvn: mvn.cmd
 
 logging:
   level:
-    com.demo.automationtestdeveloper: DEBUG
+    com:
+      demo:
+        automationtestdeveloper: DEBUG
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:h2:mem:automation_test_developer_db
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
