@@ -1,8 +1,8 @@
 package com.demo.automationtestdeveloper.services.rest;
 
-import com.demo.automationtestdeveloper.exceptions.RequestException;
 import com.demo.automationtestdeveloper.exceptions.ResponseProcessingException;
 import com.demo.automationtestdeveloper.exceptions.UnmatchedStatusCodeException;
+import com.demo.automationtestdeveloper.models.dto.YamlNodeModelFieldDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,10 +32,25 @@ public abstract class AbstractResponseHandler {
         String responseBody = response.getBody().asString();
 
         try {
-            return new ObjectMapper().readValue(responseBody, new TypeReference<>() {});
+            return new ObjectMapper().readValue(responseBody, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             String msg = String.format("Exception occurred while processing response body: %s to map, Exception: %s",
                     response.getBody(), e.getMessage());
+            log.error(msg);
+            throw new ResponseProcessingException(msg);
+        }
+    }
+
+    protected List<YamlNodeModelFieldDTO> convertResponseBodyToList(Response response) throws ResponseProcessingException {
+        String responseBody = response.getBody().asString();
+
+        try {
+            return new ObjectMapper().readValue(responseBody, new TypeReference<>() {
+            });
+        } catch (JsonProcessingException e) {
+            String msg = String.format("Exception occurred while processing response body: %s to List<%s>, Exception: %s",
+                    response.getBody(), YamlNodeModelFieldDTO.class.getSimpleName(), e.getMessage());
             log.error(msg);
             throw new ResponseProcessingException(msg);
         }

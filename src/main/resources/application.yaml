@@ -1,7 +1,7 @@
 env: local
 
 server:
-  port: 8086
+  port: 9001
 
 main-repo:
   name: automation-test-developer-target-repo
@@ -13,6 +13,7 @@ main-repo:
     port: 9000
     get-enum-values: ${main-repo.api.base-url}:${main-repo.api.port}/api/v1/main/getEnumValues
     get-trade-events: ${main-repo.api.base-url}:${main-repo.api.port}/api/v1/main/getTradeEvents
+    get-yaml-node-model-fields: ${main-repo.api.base-url}:${main-repo.api.port}/api/v1/main/getYamlNodeModelFields
 
 command:
   mvn: mvn.cmd

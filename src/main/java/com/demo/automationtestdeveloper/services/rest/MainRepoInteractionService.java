@@ -3,6 +3,7 @@ package com.demo.automationtestdeveloper.services.rest;
 import com.demo.automationtestdeveloper.exceptions.RequestException;
 import com.demo.automationtestdeveloper.exceptions.ResponseProcessingException;
 import com.demo.automationtestdeveloper.exceptions.UnmatchedStatusCodeException;
+import com.demo.automationtestdeveloper.models.dto.YamlNodeModelFieldDTO;
 import com.demo.automationtestdeveloper.utils.RestAssuredUtils;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ public class MainRepoInteractionService extends AbstractResponseHandler {
 
     @Value("${main-repo.api.get-trade-events}")
     private String getTradeEventsApiUrl;
+
+    @Value("${main-repo.api.get-yaml-node-model-fields}")
+    private String getYamlNodeModelFields;
 
     @Autowired
     private RestAssuredUtils restAssuredUtils;
@@ -54,5 +58,19 @@ public class MainRepoInteractionService extends AbstractResponseHandler {
 
         // Convert to map
         return convertResponseBodyToMap(response);
+    }
+
+    public List<YamlNodeModelFieldDTO> getYamlNodeModelFields() throws RequestException, UnmatchedStatusCodeException, ResponseProcessingException {
+        String url = getYamlNodeModelFields;
+        log.debug("Loading yaml model field values from url: {}", url);
+
+        // Make get request
+        Response response = restAssuredUtils.makeLocalGetRequest(url);
+
+        // Validate response status code
+        verifyResponseCode(response, HttpStatus.OK, url, HttpMethod.GET);
+
+        // Convert to map
+        return convertResponseBodyToList(response);
     }
 }
