@@ -4,6 +4,7 @@ import { ProgressSpinnerComponent } from './progress-spinner/progress-spinner.co
 import { ShowErrorComponent } from './show-error/show-error.component';
 import { ConfirmDialog } from './dialogs/confirmation-dialog/confirm.dialog';
 import { AngularMaterialModule } from '../angular-material/angular-material.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { AngularMaterialModule } from '../angular-material/angular-material.modu
   ],
   imports: [
     CommonModule,
-    AngularMaterialModule
+    AngularMaterialModule,
+    HttpClientModule
   ],
   exports: [
     AngularMaterialModule,

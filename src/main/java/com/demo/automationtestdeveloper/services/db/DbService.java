@@ -82,4 +82,8 @@ public class DbService {
                 .collect(Collectors.toList()));
         log.debug("Saving yaml node fields to db complete!");
     }
+
+    public List<YamlNodeFields> getYamlNodeFields(String nodeType, String modelClassName) {
+        return yamlNodeFieldsRepository.findByNodeTypeAndModelClassNameOrderById(nodeType, modelClassName);
+    }
 }

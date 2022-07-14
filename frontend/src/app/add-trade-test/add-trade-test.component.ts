@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subscription } from 'rxjs';
+import { getValidator, KafkaTradeMessageInput, KAFKA_TRADE_INPUT } from '../config/app.constants';
 import { NumberValidators } from '../shared/custom-validators/number.validator';
 import { ConfirmDialog } from '../shared/dialogs/confirmation-dialog/confirm.dialog';
+import { TestEditModifyService } from '../shared/services/test-edit-modify.service';
+import { YamlNodeFieldInterface } from '../shared/services/yaml-node-field-interface';
 import { SnackBarUtils } from '../shared/utils/snackbar.util';
 
 @Component({
@@ -34,7 +37,8 @@ export class AddTradeTestComponent implements OnInit {
   constructor(private activatedRoute: ActivatedRoute,
               private fb: FormBuilder,
               private dialog: MatDialog,
-              private snackbar: MatSnackBar) { }
+              private snackbar: MatSnackBar,
+              private testEditModifyService: TestEditModifyService) { }
 
   ngOnInit(): void {
     this.jurisdiction = this.activatedRoute.snapshot.paramMap.get("jurisdiction") || "";
@@ -89,7 +93,7 @@ export class AddTradeTestComponent implements OnInit {
 
     // ----------------------------- META-DATA FORM -------------------------------
     this.metaDataForm = this.fb.group({
-      input: this.fb.array([this.createNewInputNode()]),
+      input: this.fb.array([]),
       verification: this.fb.array([this.createNewVerificationNode()])
     });
   }
@@ -98,21 +102,47 @@ export class AddTradeTestComponent implements OnInit {
     return <FormArray> this.metaDataForm.get('input');
   }
 
-  createNewInputNode(): FormGroup {
-    let obj = this.fb.group({
-      type: [{value: 'KAFKA_TRADE_MESSAGE', disabled: true}, [Validators.required]],
-      identifier: [`${this.inputIdentifierIdx}`, [Validators.required, Validators.min(0), NumberValidators.number]],
-      identifierToReuseIdFrom: [`${this.inputIdentifierIdx > 1 ? this.inputIdentifierIdx - 1 : ''}`],
-      tradeId: ['', Validators.required],
-      sourceSystem: [{value: `${this.sourceSystem}`, disabled: true}, Validators.required],
-      channel: [{value: 'MANUAL', disabled: true}, Validators.required],
-      event: ['NEW_TRADE', Validators.required],
-      leadTimeDelay: [0, [Validators.required, NumberValidators.number, Validators.min(0)]],
-      xmlData: ['', [Validators.required]],
-      isXmlDataMasked: [false, [Validators.requiredTrue]]
+  addInputNode() {
+    let nodeType = KAFKA_TRADE_INPUT;
+    let modelClassName = KafkaTradeMessageInput;
+
+    const sub = this.testEditModifyService.getFieldNode(nodeType, modelClassName).subscribe({
+      next: (nodeFields: YamlNodeFieldInterface[]) => {
+        console.log(nodeFields);
+        // let obj: FormGroup = this.fb.group({
+        //   type: [{value: 'KAFKA_TRADE_MESSAGE', disabled: true}, [Validators.required]],
+        //   identifier: [`${this.inputIdentifierIdx}`, [Validators.required, Validators.min(0), NumberValidators.number]],
+        //   identifierToReuseIdFrom: [`${this.inputIdentifierIdx > 1 ? this.inputIdentifierIdx - 1 : ''}`],
+        //   tradeId: ['', Validators.required],
+        //   sourceSystem: [{value: `${this.sourceSystem}`, disabled: true}, Validators.required],
+        //   channel: [{value: 'MANUAL', disabled: true}, Validators.required],
+        //   event: ['NEW_TRADE', Validators.required],
+        //   leadTimeDelay: [0, [Validators.required, NumberValidators.number, Validators.min(0)]],
+        //   xmlData: ['', [Validators.required]],
+        //   isXmlDataMasked: [false, [Validators.requiredTrue]]
+        // });
+        let nodeGroup: FormGroup = this.fb.group({});
+        for (let field of nodeFields) {
+          let fieldFormControl = new FormControl();
+
+          // Add validators
+          field.fieldValidators.split(',').forEach(
+            validator => fieldFormControl.addValidators(getValidator(validator))
+          );
+
+          // Add form field
+          nodeGroup.addControl(field.fieldName, fieldFormControl);
+        }
+
+        this.inputIdentifierIdx += 1;
+        this.input.push(nodeGroup);
+        this.unsubscribe(sub);
+      },
+      error: err => {
+        console.error(err);
+        this.unsubscribe(sub);
+      }
     });
-    this.inputIdentifierIdx += 1;
-    return obj;
   }
 
   createNewVerificationNode(): FormGroup {
@@ -147,10 +177,6 @@ export class AddTradeTestComponent implements OnInit {
     });
   }
 
-  addInputNode() {
-    this.input.push(this.createNewInputNode());
-  }
-
   updateTagsList() : void {
     let tags: Array<string> = [];
     this.featureForm.get('tags')?.value.split(",").forEach((tag: string) => tags.push(`@${tag.trim()}`));
@@ -180,4 +206,9 @@ export class AddTradeTestComponent implements OnInit {
     return upi;
   }
 
+  unsubscribe(sub: Subscription) {
+    if (sub) {
+      sub.unsubscribe();
+    }
+  }
 }
