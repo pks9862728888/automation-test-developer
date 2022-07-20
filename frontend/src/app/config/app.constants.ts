@@ -3,6 +3,8 @@ import { environment } from "src/environments/environment";
 import { NumberValidators } from "../shared/custom-validators/number.validator";
 
 // Test form bootstrap field names
+export const TYPE = "type";
+export const MODEL_CLASS_NAME = "modelClassName";
 export const IDENTIFIER = 'identifier';
 export const IDENTIFIER_TO_REUSE_ID_FROM = 'identifierToReuseIdFrom';
 export const LEAD_TIME_DELAY = 'leadTimeDelay';

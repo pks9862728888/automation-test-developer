@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { catchError, debounceTime, EMPTY, firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
-import { getValidator, IDENTIFIER, IDENTIFIER_TO_REUSE_ID_FROM, INSERTION_FILE_NAME, KafkaTradeMessageInput, KAFKA_TRADE_INPUT, LEAD_TIME_DELAY, SOURCE_SYSTEM, TRADE_EVENT_ENUM } from '../config/app.constants';
+import { getValidator, IDENTIFIER, IDENTIFIER_TO_REUSE_ID_FROM, INSERTION_FILE_NAME, KafkaTradeMessageInput, KAFKA_TRADE_INPUT, LEAD_TIME_DELAY, MODEL_CLASS_NAME, SOURCE_SYSTEM, TRADE_EVENT_ENUM, TYPE } from '../config/app.constants';
 import { NumberValidators } from '../shared/custom-validators/number.validator';
 import { ConfirmDialog } from '../shared/dialogs/confirmation-dialog/confirm.dialog';
 import { TestEditModifyService } from '../shared/services/test-edit-modify.service';
@@ -155,7 +155,9 @@ export class AddTradeTestComponent implements OnInit {
 
 
   async getInputNodeFieldDefaultValue(field: YamlNodeFieldInterface): Promise<any> {
-    if (field.fieldName === IDENTIFIER) {
+    if (field.fieldName === TYPE) {
+      return field.nodeType;
+    } else if (field.fieldName === IDENTIFIER) {
       return this.inputIdentifierIdx;
     } else if (field.fieldName === IDENTIFIER_TO_REUSE_ID_FROM) {
       return this.input.value.length > 0 ? this.inputIdentifierIdx - 1 : 0;
@@ -189,16 +191,17 @@ export class AddTradeTestComponent implements OnInit {
           if (this.enumValuesMap.has(field.fieldType)) {
             return this.enumValuesMap.get(field.fieldName)[0];
           } else {
-            this.testEditModifyService.getEnumValues(field.fieldType).subscribe({
-              next: (enumValues: string[]) => {
-                this.enumValuesMap.set(field.fieldType, enumValues);
-                return enumValues[0];
-              },
-              error: err => {
-                console.error(err);
-                return '';
-              }
-            });
+            let enumValues$ = this.testEditModifyService.getEnumValues(field.fieldType)
+              .pipe(
+                catchError(err => {
+                  console.error(err);
+                  return EMPTY;
+                })
+              );
+            
+            let enumValues: string[] = await lastValueFrom(enumValues$);
+            this.enumValuesMap.set(field.fieldType, enumValues);
+            return enumValues[0];
           }
         }
       }
