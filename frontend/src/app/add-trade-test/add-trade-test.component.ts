@@ -3,9 +3,8 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { catchError, debounceTime, EMPTY, firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
+import { catchError, debounceTime, EMPTY, lastValueFrom, tap } from 'rxjs';
 import { getValidator, IDENTIFIER, IDENTIFIER_TO_REUSE_ID_FROM, INSERTION_FILE_NAME, KafkaTradeMessageInput, KAFKA_TRADE_INPUT, LEAD_TIME_DELAY, MODEL_CLASS_NAME, SOURCE_SYSTEM, TRADE_EVENT_ENUM, TYPE } from '../config/app.constants';
-import { NumberValidators } from '../shared/custom-validators/number.validator';
 import { ConfirmDialog } from '../shared/dialogs/confirmation-dialog/confirm.dialog';
 import { TestEditModifyService } from '../shared/services/test-edit-modify.service';
 import { YamlNodeFieldInterface } from '../shared/services/yaml-node-field-interface';
@@ -32,6 +31,7 @@ export class AddTradeTestComponent implements OnInit {
 
   // Enum values
   enumValuesMap = new Map();
+  nodeModelClassNameNodeFieldValueDataTypeMap = new Map();  // Map <K1, Map<K2, V2> where K1 = modelClassName, K2 = fieldName, V2 = DataType
 
   // Forms
   featureForm!: FormGroup;
@@ -112,6 +112,14 @@ export class AddTradeTestComponent implements OnInit {
     // Get all node fields
     let nodeFields$ = this.testEditModifyService.getNodeFields(nodeType, modelClassName)
       .pipe(
+        tap(fields => {
+          // Set the model class name and field data type in map
+          if (!this.nodeModelClassNameNodeFieldValueDataTypeMap.has(modelClassName)) {
+            let nodeFieldTypeMap = new Map();
+            fields.forEach(field => nodeFieldTypeMap.set(field.fieldName, field.fieldType));
+            this.nodeModelClassNameNodeFieldValueDataTypeMap.set(modelClassName, nodeFieldTypeMap);
+          }
+        }),
         catchError(err => {
           console.log(err);
           return EMPTY;
@@ -267,5 +275,12 @@ export class AddTradeTestComponent implements OnInit {
       }
     }
     return upi;
+  }
+
+  isFieldTypeEnum(modelClassName: string, fieldName: string) {
+    if (this.nodeModelClassNameNodeFieldValueDataTypeMap.get(modelClassName)?.get(fieldName)?.includes("Enum")) {
+      return true;
+    }
+    return false;
   }
 }
