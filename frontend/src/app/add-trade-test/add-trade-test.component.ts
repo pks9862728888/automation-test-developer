@@ -3,8 +3,8 @@ import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Valida
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { debounceTime, Subscription } from 'rxjs';
-import { getValidator, KafkaTradeMessageInput, KAFKA_TRADE_INPUT } from '../config/app.constants';
+import { catchError, debounceTime, EMPTY, firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
+import { getValidator, IDENTIFIER, IDENTIFIER_TO_REUSE_ID_FROM, INSERTION_FILE_NAME, KafkaTradeMessageInput, KAFKA_TRADE_INPUT, LEAD_TIME_DELAY, SOURCE_SYSTEM, TRADE_EVENT_ENUM } from '../config/app.constants';
 import { NumberValidators } from '../shared/custom-validators/number.validator';
 import { ConfirmDialog } from '../shared/dialogs/confirmation-dialog/confirm.dialog';
 import { TestEditModifyService } from '../shared/services/test-edit-modify.service';
@@ -29,6 +29,9 @@ export class AddTradeTestComponent implements OnInit {
   steps: Array<string> = [];
   testName!: string;
   inputIdentifierIdx = 1;
+
+  // Enum values
+  enumValuesMap = new Map();
 
   // Forms
   featureForm!: FormGroup;
@@ -106,43 +109,100 @@ export class AddTradeTestComponent implements OnInit {
     let nodeType = KAFKA_TRADE_INPUT;
     let modelClassName = KafkaTradeMessageInput;
 
-    const sub = this.testEditModifyService.getFieldNode(nodeType, modelClassName).subscribe({
-      next: (nodeFields: YamlNodeFieldInterface[]) => {
-        console.log(nodeFields);
-        // let obj: FormGroup = this.fb.group({
-        //   type: [{value: 'KAFKA_TRADE_MESSAGE', disabled: true}, [Validators.required]],
-        //   identifier: [`${this.inputIdentifierIdx}`, [Validators.required, Validators.min(0), NumberValidators.number]],
-        //   identifierToReuseIdFrom: [`${this.inputIdentifierIdx > 1 ? this.inputIdentifierIdx - 1 : ''}`],
-        //   tradeId: ['', Validators.required],
-        //   sourceSystem: [{value: `${this.sourceSystem}`, disabled: true}, Validators.required],
-        //   channel: [{value: 'MANUAL', disabled: true}, Validators.required],
-        //   event: ['NEW_TRADE', Validators.required],
-        //   leadTimeDelay: [0, [Validators.required, NumberValidators.number, Validators.min(0)]],
-        //   xmlData: ['', [Validators.required]],
-        //   isXmlDataMasked: [false, [Validators.requiredTrue]]
-        // });
-        let nodeGroup: FormGroup = this.fb.group({});
-        for (let field of nodeFields) {
-          let fieldFormControl = new FormControl();
+    // Get all node fields
+    let nodeFields$ = this.testEditModifyService.getNodeFields(nodeType, modelClassName)
+      .pipe(
+        catchError(err => {
+          console.log(err);
+          return EMPTY;
+        })
+      );
 
+    let nodeGroup: FormGroup = this.fb.group({});
+    nodeFields$.forEach(fields => {
+      fields.forEach(async field => {
+        // Create form field with default value
+        let fieldFormControl = new FormControl();
+        this.getInputNodeFieldDefaultValue(field).then(fieldValue => {
+          if (field.fieldType === TRADE_EVENT_ENUM) {
+            console.log("GOT TRADE EVENT VALUE: " + fieldValue);
+          }
+          fieldFormControl.setValue(fieldValue);
+  
           // Add validators
           field.fieldValidators.split(',').forEach(
             validator => fieldFormControl.addValidators(getValidator(validator))
           );
-
+  
           // Add form field
-          nodeGroup.addControl(field.fieldName, fieldFormControl);
-        }
+          nodeGroup.addControl(field.fieldName === INSERTION_FILE_NAME ? 'xmlData': field.fieldName,
+            fieldFormControl);
+        });
+      });
 
-        this.inputIdentifierIdx += 1;
-        this.input.push(nodeGroup);
-        this.unsubscribe(sub);
-      },
-      error: err => {
-        console.error(err);
-        this.unsubscribe(sub);
+      // Add hidden form control to indicate whether xml data was masked
+      if (modelClassName === KafkaTradeMessageInput) {
+        let fc = new FormControl(false);
+        fc.setValidators(Validators.requiredTrue);
+        nodeGroup.addControl('isXmlDataMasked', fc);
       }
+
+      this.inputIdentifierIdx += 1;
+      this.input.push(nodeGroup);
+      console.log("PUSHED");
     });
+  }
+
+
+  async getInputNodeFieldDefaultValue(field: YamlNodeFieldInterface): Promise<any> {
+    if (field.fieldName === IDENTIFIER) {
+      return this.inputIdentifierIdx;
+    } else if (field.fieldName === IDENTIFIER_TO_REUSE_ID_FROM) {
+      return this.input.value.length > 0 ? this.inputIdentifierIdx - 1 : 0;
+    } else if (field.fieldName === SOURCE_SYSTEM) {
+      return this.sourceSystem;
+    } else if (field.fieldName === LEAD_TIME_DELAY) {
+      return 0;
+    } else if (field.fieldType.includes('Enum')) {
+      if (this.enumValuesMap.has(field.fieldType) ) {
+        return this.enumValuesMap.get(field.fieldType)[0];
+      } else {
+        if (field.fieldType === TRADE_EVENT_ENUM) {
+          // Get trade events
+          if (this.enumValuesMap.has(field.fieldType)) {
+            return this.enumValuesMap.get(field.fieldName)[0];
+          } else {
+            let tradeEventEnumValues$ = this.testEditModifyService.getTradeEventEnumValues(this.sourceSystem).pipe(
+              catchError(err => {
+                console.error(err);
+                return EMPTY;
+              })
+            );
+
+            let tradeEvents: string[] = await lastValueFrom(tradeEventEnumValues$);
+            this.enumValuesMap.set(TRADE_EVENT_ENUM, tradeEvents);
+            console.log("expected trade event: " + tradeEvents[0]);
+            return tradeEvents[0];
+          }
+        } else {
+          // Get other enum values
+          if (this.enumValuesMap.has(field.fieldType)) {
+            return this.enumValuesMap.get(field.fieldName)[0];
+          } else {
+            this.testEditModifyService.getEnumValues(field.fieldType).subscribe({
+              next: (enumValues: string[]) => {
+                this.enumValuesMap.set(field.fieldType, enumValues);
+                return enumValues[0];
+              },
+              error: err => {
+                console.error(err);
+                return '';
+              }
+            });
+          }
+        }
+      }
+    }
   }
 
   createNewVerificationNode(): FormGroup {
@@ -204,11 +264,5 @@ export class AddTradeTestComponent implements OnInit {
       }
     }
     return upi;
-  }
-
-  unsubscribe(sub: Subscription) {
-    if (sub) {
-      sub.unsubscribe();
-    }
   }
 }

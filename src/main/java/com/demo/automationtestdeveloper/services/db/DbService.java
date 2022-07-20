@@ -40,9 +40,9 @@ public class DbService {
         Map<String, List<String>> allEnumValues = mainRepoInteractionService.getAllEnumValues();
         saveAllEnumValuesInDbTable(allEnumValues);
 
-        // Get all enum values
+        // Get event enum values
         Map<String, List<String>> eventEnumValues = mainRepoInteractionService.getEventEnumValues();
-        saveTradeEventEnumValuesInDbTable(allEnumValues);
+        saveTradeEventEnumValuesInDbTable(eventEnumValues);
 
         // Get all yaml node fields
         List<YamlNodeModelFieldDTO> yamlNodeModelFields = mainRepoInteractionService.getYamlNodeModelFields();
@@ -85,5 +85,13 @@ public class DbService {
 
     public List<YamlNodeFields> getYamlNodeFields(String nodeType, String modelClassName) {
         return yamlNodeFieldsRepository.findByNodeTypeAndModelClassNameOrderById(nodeType, modelClassName);
+    }
+
+    public List<String> getEnumValues(String enumName) {
+        return enumValuesRepository.findEnumValuesByEnumNameOrderById(enumName);
+    }
+
+    public List<String> getTradeEventEnumValues(String sourceSystemEnumName) {
+        return tradeEventEnumValuesRepository.findEventNameBySourceSystemEnumName(sourceSystemEnumName);
     }
 }
